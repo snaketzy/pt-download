@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+  <channel>
+    <title>HDHome RSS</title>
+    <link>https://hdhome.org/</link>
+    <description>HDHome Torrents</description>
+    <item>
+      <title>沙丘2 Dune Part Two 2024 1080p BluRay x265 10bit 国语中字 特效字幕-CMCT</title>
+      <link>https://hdhome.org/details.php?id=100001</link>
+      <guid>https://hdhome.org/details.php?id=100001</guid>
+      <pubDate>Mon, 10 Nov 2026 09:12:00 +0800</pubDate>
+      <enclosure url="https://hdhome.org/download.php?id=100001&amp;passkey=abc123" length="12884901888" type="application/x-bittorrent" />
+      <torrent>
+        <infoHash>0123456789abcdef0123456789abcdef01234567</infoHash>
+        <downloadvolumefactor>0</downloadvolumefactor>
+        <uploadvolumefactor>1</uploadvolumefactor>
+      </torrent>
+    </item>
+    <item>
+      <title>奥本海默 Oppenheimer 2023 2160p UHD BluRay REMUX HDR DoVi 7.1 Atmos 简繁英-CMCT</title>
+      <link>https://hdhome.org/details.php?id=100002</link>
+      <guid>https://hdhome.org/details.php?id=100002</guid>
+      <pubDate>Mon, 10 Nov 2026 08:40:00 +0800</pubDate>
+      <enclosure url="https://hdhome.org/download.php?id=100002&amp;passkey=abc123" length="62277025792" type="application/x-bittorrent" />
+      <torrent>
+        <infoHash>89abcdef0123456789abcdef0123456789abcdef</infoHash>
+        <downloadvolumefactor>0</downloadvolumefactor>
+        <uploadvolumefactor>2</uploadvolumefactor>
+      </torrent>
+    </item>
+    <item>
+      <title>繁花 Blossoms Shanghai S01 2023 2160p WEB-DL HDR x264 AAC 国语 中字-OurTV</title>
+      <link>https://hdhome.org/details.php?id=100003</link>
+      <guid>https://hdhome.org/details.php?id=100003</guid>
+      <pubDate>Mon, 10 Nov 2026 07:05:00 +0800</pubDate>
+      <enclosure url="https://hdhome.org/download.php?id=100003&amp;passkey=abc123" length="34359738368" type="application/x-bittorrent" />
+      <torrent>
+        <infoHash>fedcba9876543210fedcba9876543210fedcba98</infoHash>
+        <downloadvolumefactor>1</downloadvolumefactor>
+        <uploadvolumefactor>1</uploadvolumefactor>
+      </torrent>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PT-Download · 奥斯卡获奖影片 · M-Team 搜索预览</title>
+<style>
+  :root{
+    --bg:#0b0b0f; --panel:#141419; --panel2:#1b1b22; --line:#26262f;
+    --fg:#e8e8ee; --muted:#9aa0ab; --accent:#e50914; --ok:#38b27a; --warn:#e0a336; --err:#e0523a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+  a{color:inherit}
+  header{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,#0b0b0f 60%,rgba(11,11,15,.85));
+    border-bottom:1px solid var(--line);padding:16px 24px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  header h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.3px}
+  header h1 b{color:var(--accent)}
+  header .sub{color:var(--muted);font-size:12px}
+  main{padding:20px 24px 60px;max-width:1400px;margin:0 auto}
+  .toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field label{font-size:11px;color:var(--muted);letter-spacing:.4px}
+  input,select{background:var(--panel2);border:1px solid var(--line);color:var(--fg);border-radius:8px;
+    padding:8px 10px;font-size:13px;outline:none;min-width:110px}
+  input:focus,select:focus{border-color:#3a3a46}
+  button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:9px 18px;font-size:13px;
+    font-weight:600;cursor:pointer;transition:filter .15s}
+  button:hover{filter:brightness(1.12)}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--fg);font-weight:500}
+  button.ghost:hover{border-color:#3a3a46;background:#1a1a21}
+  .progress{margin-top:14px;display:none}
+  .progress.on{display:block}
+  .bar{height:4px;background:var(--panel2);border-radius:99px;overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+  .progress .txt{color:var(--muted);font-size:12px;margin-top:8px;display:flex;gap:16px;flex-wrap:wrap}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .chip{background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:6px 14px;font-size:12px;color:var(--muted)}
+  .chip b{color:var(--fg);font-size:13px;margin-left:6px}
+  .chip.ok b{color:var(--ok)} .chip.warn b{color:var(--warn)} .chip.err b{color:var(--err)}
+  .toolrow{display:flex;gap:10px;align-items:center;margin:18px 0 10px;flex-wrap:wrap}
+  .toolrow .sp{flex:1}
+  .toolrow label{color:var(--muted);font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer}
+  .film{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden}
+  .film>.head{display:grid;grid-template-columns:34px 1fr auto auto;gap:12px;align-items:center;
+    padding:11px 14px;cursor:pointer;user-select:none}
+  .film>.head:hover{background:var(--panel2)}
+  .film .caret{color:var(--muted);font-size:11px;transition:transform .15s}
+  .film.open .caret{transform:rotate(90deg)}
+  .film .fname{font-weight:600;font-size:14px}
+  .film .fmeta{color:var(--muted);font-size:12px;margin-top:2px}
+  .film .cnt{font-size:12px;color:var(--muted);white-space:nowrap}
+  .film .cnt b{font-size:14px;color:var(--fg)}
+  .film.none .fname{color:var(--muted);font-weight:500}
+  .film.err{border-color:#3a2620}
+  .film .body{display:none;border-top:1px solid var(--line);padding:6px 8px 8px}
+  .film.open .body{display:block}
+  .cand{display:grid;grid-template-columns:44px 1fr auto auto;gap:12px;align-items:center;padding:8px 8px;border-radius:8px}
+  .cand:hover{background:var(--panel2)}
+  .cand img{width:44px;height:62px;object-fit:cover;border-radius:5px;background:#222;display:block}
+  .cand .t{font-size:12.5px;word-break:break-all;line-height:1.45}
+  .cand .b{margin-top:5px;display:flex;gap:5px;flex-wrap:wrap}
+  .badge{font-size:10.5px;padding:2px 7px;border-radius:5px;background:#242430;color:#c8ccd6;white-space:nowrap}
+  .badge.res{background:#12325c;color:#9ec9ff}
+  .badge.p2160{background:#3a2350;color:#d7b6ff}
+  .badge.dv{background:#173a46;color:#8fe4ff}
+  .badge.hdr{background:#3d3512;color:#ffe08a}
+  .badge.cn{background:#123a28;color:#7fe0ab}
+  .badge.free{background:#123a28;color:#7fe0ab}
+  .badge.p2x{background:#3d3512;color:#ffe08a}
+  .cand .r{text-align:right;white-space:nowrap}
+  .cand .size{font-variant-numeric:tabular-nums;font-weight:600}
+  .cand .seeds{color:var(--ok);font-size:12px;font-variant-numeric:tabular-nums}
+  .cand .seeds.low{color:var(--warn)}
+  .cand .date{color:var(--muted);font-size:11px;margin-top:3px}
+  .cand .act{display:flex;align-items:center;padding-left:4px}
+  .cand .act button{padding:7px 14px;font-size:12px;min-width:72px}
+  .cand .act button.done{background:transparent;border:1px solid var(--ok);color:var(--ok);cursor:default;opacity:1}
+  .cand .act button.fail{background:var(--err)}
+  #toast{position:fixed;right:20px;bottom:20px;z-index:50;display:flex;flex-direction:column;gap:8px}
+  #toast .t{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--err);border-radius:8px;
+    padding:10px 14px;font-size:12.5px;max-width:420px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+  .errmsg{color:var(--err);font-size:12px;padding:8px}
+  .empty{color:var(--muted);text-align:center;padding:60px 0;font-size:13px}
+  .spin{display:inline-block;width:11px;height:11px;border:2px solid #ffffff55;border-top-color:#fff;
+    border-radius:50%;animation:sp .7s linear infinite;vertical-align:-1px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>PT-Download <b>·</b> 奥斯卡获奖影片</h1>
+  <span class="sub">数据源 mdo 片单 → M-Team 按 IMDb 反查 · 候选可点击下发到 qBittorrent</span>
+</header>
+
+<main>
+  <section class="toolbar">
+    <div class="field"><label>奖项 award_list</label><select id="award"></select></div>
+    <div class="field"><label>结果 award_status</label><select id="status"></select></div>
+    <div class="field"><label>每片条数</label><input id="perTitle" type="number" value="8" min="1" max="100"></div>
+    <div class="field"><label>最小做种</label><input id="minSeeders" type="number" value="1" min="0"></div>
+    <button id="run">开始搜索</button>
+  </section>
+
+  <section class="progress" id="progressWrap">
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="txt">
+      <span id="pTxt">搜索中…</span>
+      <span id="pTime"></span>
+    </div>
+  </section>
+
+  <section class="stats" id="stats"></section>
+
+  <section class="toolrow">
+    <label><input type="checkbox" id="onlyFound"> 仅显示有候选</label>
+    <label>排序
+      <select id="sort">
+        <option value="year">按年份</option>
+        <option value="count">按候选数</option>
+        <option value="seeds">按最热做种</option>
+      </select>
+    </label>
+    <span class="sp"></span>
+    <button class="ghost" id="expandAll">全部展开</button>
+  </section>
+
+  <section class="results" id="results">
+    <div class="empty">填写条件后点击「开始搜索」</div>
+  </section>
+</main>
+<div id="toast"></div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtGiB = (g) => (g == null ? '-' : (g >= 100 ? g.toFixed(0) : g.toFixed(2)) + ' GiB');
+
+let acc = [];        // 累积结果
+let running = false;
+let facets = [];     // 奖项 → 结果 选项（来自 /api/discover/facets）
+
+// 奖项下拉：读不到时退回内置默认，保证仍可搜索。
+function fillAward() {
+  const sel = $('#award');
+  sel.innerHTML = facets
+    .map((a) => '<option value="' + esc(a.value) + '">' + esc(a.value) + ' (' + a.count + ')</option>')
+    .join('');
+  const preferred = facets.find((a) => a.value === '奥斯卡') || facets[0];
+  if (preferred) sel.value = preferred.value;
+  fillStatus();
+}
+
+// 结果下拉：只列当前奖项实际存在的结果，避免空组合。
+function fillStatus() {
+  const award = facets.find((a) => a.value === $('#award').value);
+  const statuses = award ? award.statuses : [];
+  const sel = $('#status');
+  sel.innerHTML = statuses
+    .map((s) => '<option value="' + esc(s.value) + '">' + esc(s.value) + ' (' + s.count + ')</option>')
+    .join('');
+  const preferred = statuses.find((s) => s.value === '获奖') || statuses[0];
+  if (preferred) sel.value = preferred.value;
+}
+
+async function loadFacets() {
+  try {
+    const data = await (await fetch('/api/discover/facets')).json();
+    if (!data.ok) throw new Error(data.error || '加载选项失败');
+    facets = data.awards || [];
+    fillAward();
+  } catch (err) {
+    toast('加载奖项选项失败：' + err.message);
+  }
+}
+
+function badges(c) {
+  const out = [];
+  const r = c.parsed && c.parsed.resolution;
+  if (r) out.push('<span class="badge ' + (r === '2160p' ? 'p2160' : 'res') + '">' + esc(r) + '</span>');
+  if (c.parsed && c.parsed.source) out.push('<span class="badge">' + esc(c.parsed.source) + '</span>');
+  if (c.parsed && c.parsed.codec) out.push('<span class="badge">' + esc(c.parsed.codec) + '</span>');
+  if (c.parsed && c.parsed.audio) out.push('<span class="badge">' + esc(c.parsed.audio) + '</span>');
+  for (const h of (c.parsed && c.parsed.hdr) || []) {
+    out.push('<span class="badge ' + (/DV/.test(h) ? 'dv' : 'hdr') + '">' + esc(h) + '</span>');
+  }
+  for (const l of c.labels || []) out.push('<span class="badge ' + (/中字|国|粤/.test(l) ? 'cn' : '') + '">' + esc(l) + '</span>');
+  if (c.freeType === 'free' || c.freeType === 'free2x') out.push('<span class="badge free">免费</span>');
+  else if (c.freeType === '2x') out.push('<span class="badge p2x">2X</span>');
+  if (c.discount === 'PERCENT_50') out.push('<span class="badge p2x">5折</span>');
+  if (c.parsed && c.parsed.group) out.push('<span class="badge">' + esc(c.parsed.group) + '</span>');
+  return out.join('');
+}
+
+function candidateHTML(c) {
+  const poster = c.poster ? '<img loading="lazy" src="' + esc(c.poster) + '" alt="">' : '<img alt="">';
+  const seedsCls = c.seeders <= 2 ? 'seeds low' : 'seeds';
+  const btn = '<button class="dl" data-tid="' + esc(c.torrentId) + '" data-title="' + esc(c.title) + '"' +
+    ' data-size="' + (c.sizeBytes || 0) + '" data-free="' + esc(c.freeType || 'none') + '">下载</button>';
+  return '<div class="cand">' + poster +
+    '<div><div class="t">' + esc(c.title) + '</div><div class="b">' + badges(c) + '</div></div>' +
+    '<div class="r"><div class="size">' + fmtGiB(c.sizeGiB) + '</div>' +
+    '<div class="' + seedsCls + '">' + c.seeders + ' seed</div>' +
+    '<div class="date">' + esc((c.publishAt || '').slice(0, 10)) + '</div></div>' +
+    '<div class="act">' + btn + '</div></div>';
+}
+
+function filmHTML(f) {
+  const cands = (f.candidates || []).slice().sort((a, b) => b.seeders - a.seeders);
+  const name = f.chineseTitle || (f.parsed && f.parsed.cleanTitle) || f.imdb;
+  const meta = [f.releaseYear || '—', f.imdb].join(' · ');
+  const cnt = f.error
+    ? '<span style="color:var(--err)">错误</span>'
+    : '<b>' + f.candidateCount + '</b> 个候选';
+  const cls = 'film' + (f.candidateCount ? '' : ' none') + (f.error ? ' err' : '');
+  const body = f.error
+    ? '<div class="errmsg">⚠︎ ' + esc(f.error) + '</div>'
+    : (cands.length ? cands.map(candidateHTML).join('') : '<div class="empty" style="padding:20px 0">站内暂无候选</div>');
+  return '<article class="' + cls + '" data-count="' + f.candidateCount + '" data-year="' + (f.releaseYear || 0) + '"' +
+    ' data-seeds="' + (cands[0] ? cands[0].seeders : 0) + '" data-found="' + (f.candidateCount ? '1' : '0') + '">' +
+    '<div class="head"><span class="caret">▶</span>' +
+    '<div><div class="fname">' + esc(name) + '</div><div class="fmeta">' + esc(meta) + '</div></div>' +
+    '<div class="cnt">' + cnt + '</div></div>' +
+    '<div class="body">' + body + '</div></article>';
+}
+
+function renderStats() {
+  const found = acc.filter((r) => r.candidateCount > 0).length;
+  const err = acc.filter((r) => r.error).length;
+  const total = acc.reduce((s, r) => s + r.candidateCount, 0);
+  $('#stats').innerHTML =
+    '<span class="chip">已搜<b>' + acc.length + '</b></span>' +
+    '<span class="chip ok">命中<b>' + found + '</b></span>' +
+    '<span class="chip warn">无候选<b>' + (acc.length - found - err) + '</b></span>' +
+    '<span class="chip err">报错<b>' + err + '</b></span>' +
+    '<span class="chip">候选合计<b>' + total + '</b></span>';
+}
+
+function applySort() {
+  const mode = $('#sort').value;
+  const onlyFound = $('#onlyFound').checked;
+  const kids = [...$('#results').children].filter((n) => n.classList.contains('film'));
+  kids.sort((a, b) => {
+    if (mode === 'count') return (+b.dataset.count) - (+a.dataset.count);
+    if (mode === 'seeds') return (+b.dataset.seeds) - (+a.dataset.seeds);
+    return (+a.dataset.year) - (+b.dataset.year);
+  });
+  const frag = document.createDocumentFragment();
+  for (const k of kids) {
+    k.style.display = (onlyFound && k.dataset.found === '0') ? 'none' : '';
+    frag.appendChild(k);
+  }
+  const box = $('#results');
+  box.innerHTML = '';
+  box.appendChild(frag);
+}
+
+async function postJSON(url, body) {
+  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  return res.json();
+}
+
+function toast(msg) {
+  const el = document.createElement('div');
+  el.className = 't';
+  el.textContent = msg;
+  $('#toast').appendChild(el);
+  setTimeout(() => el.remove(), 6000);
+}
+
+// 单个候选下发到 qBittorrent（后端生成 M-Team 签名直链后交给 qB，并落 downloads 表）。
+async function downloadOne(btn) {
+  if (btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = '下发中…';
+  btn.classList.remove('fail');
+  try {
+    const data = await postJSON('/api/discover/download', {
+      torrentId: btn.dataset.tid,
+      title: btn.dataset.title,
+      sizeBytes: Number(btn.dataset.size) || null,
+      freeType: btn.dataset.free || 'none',
+    });
+    if (!data.ok) throw new Error(data.error || '下发失败');
+    btn.textContent = '已添加';
+    btn.classList.add('done');
+  } catch (err) {
+    btn.textContent = '下载';
+    btn.disabled = false;
+    btn.classList.add('fail');
+    toast('下发失败：' + err.message);
+    setTimeout(() => btn.classList.remove('fail'), 2500);
+  }
+}
+
+async function runSearch() {
+  if (running) return;
+  running = true;
+  $('#run').disabled = true;
+  $('#run').innerHTML = '<span class="spin"></span> 搜索中';
+  acc = [];
+  $('#results').innerHTML = '';
+  $('#stats').innerHTML = '';
+  $('#progressWrap').classList.add('on');
+  $('#barFill').style.width = '0';
+
+  const award = $('#award').value.trim() || '奥斯卡';
+  const status = $('#status').value.trim() || '获奖';
+  const perTitle = +$('#perTitle').value || 8;
+  const minSeeders = +$('#minSeeders').value || 0;
+
+  const t0 = Date.now();
+  const timer = setInterval(() => { $('#pTime').textContent = '已用时 ' + ((Date.now() - t0) / 1000).toFixed(1) + 's'; }, 200);
+
+  let offset = 0;
+  let total = 1;
+  try {
+    for (;;) {
+      const data = await postJSON('/api/discover/search', { award, status, limit: 8, offset, perTitle, minSeeders });
+      if (!data.ok) throw new Error(data.error || '未知错误');
+      total = data.total;
+      acc.push(...data.results);
+      const frag = document.createDocumentFragment();
+      for (const f of data.results) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = filmHTML(f);
+        frag.appendChild(tmp.firstElementChild);
+      }
+      $('#results').appendChild(frag);
+      renderStats();
+      offset += data.count;
+      $('#barFill').style.width = Math.min(100, (offset / total) * 100).toFixed(1) + '%';
+      $('#pTxt').textContent = '已搜 ' + offset + ' / ' + total + ' 部 · 限流自适应间隔 ' + (data.interval ?? '-') + 'ms';
+      if (data.count === 0 || offset >= total) break;
+    }
+    $('#pTxt').textContent = '完成：共 ' + total + ' 部';
+    applySort();
+  } catch (err) {
+    $('#pTxt').innerHTML = '<span style="color:var(--err)">失败：' + esc(err.message) + '</span>';
+    if (!acc.length) $('#results').innerHTML = '<div class="empty">搜索失败</div>';
+  } finally {
+    clearInterval(timer);
+    running = false;
+    $('#run').disabled = false;
+    $('#run').textContent = '开始搜索';
+  }
+}
+
+$('#run').addEventListener('click', runSearch);
+$('#sort').addEventListener('change', applySort);
+$('#onlyFound').addEventListener('change', applySort);
+$('#award').addEventListener('change', fillStatus);
+loadFacets();
+$('#results').addEventListener('click', (e) => {
+  const btn = e.target.closest('.dl');
+  if (btn) {
+    downloadOne(btn);
+    return;
+  }
+  const head = e.target.closest('.head');
+  if (head) head.parentElement.classList.toggle('open');
+});
+$('#expandAll').addEventListener('click', () => {
+  const films = [...document.querySelectorAll('.film')];
+  const anyClosed = films.some((f) => !f.classList.contains('open'));
+  films.forEach((f) => f.classList.toggle('open', anyClosed));
+  $('#expandAll').textContent = anyClosed ? '全部收起' : '全部展开';
+});
+</script>
+</body>
+</html>

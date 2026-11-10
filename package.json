@@ -1,0 +1,24 @@
+{
+  "name": "pt-download",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "db:migrate": "node src/db/migrate.js",
+    "test:parse": "node scripts/test-parse.js",
+    "test:match": "node scripts/test-match.js",
+    "qb:webui-entry": "node ops/qb-webui-entry.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "fast-xml-parser": "^4.5.0",
+    "fastify": "^5.2.0",
+    "mysql2": "^3.11.5",
+    "parse-torrent-title": "^1.4.0"
+  }
+}
